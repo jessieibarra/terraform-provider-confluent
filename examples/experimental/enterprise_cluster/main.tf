@@ -18,14 +18,20 @@ provider "confluent" {
 }
 
 provider "aws" {
-  region = var.aws_region // UPDATED
+  region = var.aws_region
   // Credentials are expected to be set via environment variables:
   // AWS_ACCESS_KEY_ID
   // AWS_SECRET_ACCESS_KEY
   // AWS_SESSION_TOKEN (optional)
 }
 
+locals {
+  create_new_environment   = var.existing_environment_id == null || var.existing_environment_id == ""
+  effective_environment_id = local.create_new_environment ? confluent_environment.experimental_env[0].id : var.existing_environment_id
+}
+
 resource "confluent_environment" "experimental_env" {
+  count        = local.create_new_environment ? 1 : 0
   display_name = "Experimental Environment for Enterprise Cluster"
   // Add any other required or relevant attributes for the environment.
   // For now, a simple environment with just a display name will be created.
@@ -35,9 +41,9 @@ resource "confluent_kafka_cluster" "enterprise_test" {
   display_name = var.cluster_name
   availability = "SINGLE_ZONE"
   cloud        = "AWS"
-  region       = var.aws_region // UPDATED
+  region       = var.aws_region
   environment {
-    id = confluent_environment.experimental_env.id
+    id = local.effective_environment_id // UPDATED
   }
   enterprise {
     cku = 1 // Assuming 1 CKU is the smallest. This might need adjustment.
@@ -47,11 +53,11 @@ resource "confluent_kafka_cluster" "enterprise_test" {
 }
 
 resource "confluent_private_link_attachment" "experimental_pla" {
-  display_name = "${var.cluster_name}-pla"
+  display_name = "${var.cluster_name}-pla" // Escaped for heredoc
   cloud        = "AWS"
-  region       = var.aws_region // Ensure this uses the variable
+  region       = var.aws_region
   environment {
-    id = confluent_environment.experimental_env.id
+    id = local.effective_environment_id // UPDATED
   }
   // AWS specific configurations will be implicitly handled by the provider
   // based on the 'cloud = "AWS"' attribute.
@@ -70,19 +76,19 @@ module "aws_vpc_endpoint_service" {
 }
 
 resource "confluent_private_link_attachment_connection" "experimental_plac" {
-  display_name = "${var.cluster_name}-plac"
+  display_name = "${var.cluster_name}-plac" // Escaped for heredoc
   environment {
-    id = confluent_environment.experimental_env.id
+    id = local.effective_environment_id // UPDATED
   }
   private_link_attachment {
     id = confluent_private_link_attachment.experimental_pla.id
   }
   aws {
-    vpc_endpoint_id = module.aws_vpc_endpoint_service.vpc_endpoint_id // UPDATED
+    vpc_endpoint_id = module.aws_vpc_endpoint_service.vpc_endpoint_id
   }
   depends_on = [
     confluent_private_link_attachment.experimental_pla,
-    module.aws_vpc_endpoint_service // ADDED
+    module.aws_vpc_endpoint_service
   ]
 }
 

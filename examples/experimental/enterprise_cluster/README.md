@@ -6,7 +6,7 @@ This directory contains an experimental Terraform module for creating a Confluen
 
 ## Features
 
-- Creates a Confluent Environment.
+- Creates a Confluent Environment (if `existing_environment_id` is not provided).
 - Deploys a Confluent Enterprise Kafka cluster on AWS.
 - Configured for single-zone availability by default for the Kafka cluster.
 - **Sets up AWS PrivateLink:**
@@ -37,6 +37,8 @@ This directory contains an experimental Terraform module for creating a Confluen
       "use1-az1" = "subnet-0123456789abcdef0" // Map AZ ID to your Subnet ID
       "use1-az2" = "subnet-fedcba9876543210"  // Map AZ ID to your Subnet ID
     }
+    // To use an existing environment:
+    // existing_environment_id = "env-xxxxx"
     ```
 3.  Initialize Terraform:
     ```bash
@@ -53,6 +55,7 @@ This directory contains an experimental Terraform module for creating a Confluen
 | -------------------------- | ---------------------------------------------------------------------------------------------------------- | ----------- | ------------------------- | :------: |
 | `aws_region`               | The AWS region for provider and resources.                                                                 | `string`    | `us-east-1`               |    no    |
 | `cluster_name`             | The name for the Kafka Cluster.                                                                            | `string`    | `jibarra_test_enterprise` |    no    |
+| `existing_environment_id`  | Optional: The ID of an existing Confluent Environment. If provided, a new one is not created. | `string`    | `""`                      |    no    |
 | `aws_account_id`           | The AWS Account ID where the PrivateLink endpoint will be created (e.g., 123456789012).                   | `string`    |                           |   yes    |
 | `vpc_id`                   | The ID of the AWS VPC in which the PrivateLink endpoint will be created.                                     | `string`    |                           |   yes    |
 | `subnets_to_privatelink`   | A map of Zone IDs to Subnet IDs for the AWS PrivateLink endpoint (e.g., `{"use1-az1" = "subnet-..."}`). | `map(string)` |                           |   yes    |

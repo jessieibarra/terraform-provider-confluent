@@ -28,5 +28,11 @@ variable "cluster_name" {
   default     = "jibarra_test_enterprise"
 }
 
+variable "existing_environment_id" {
+  description = "Optional: The ID of an existing Confluent Environment to use. If provided, a new environment will not be created. If omitted or empty, a new environment will be created by the module."
+  type        = string
+  default     = "" // Using an empty string as a clear indicator for 'not provided'
+}
+
 // Placeholder for other input variables
 // This is an experimental module.
