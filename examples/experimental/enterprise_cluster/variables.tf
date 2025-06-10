@@ -16,10 +16,16 @@ variable "vpc_id" {
   // No default, as this is specific to the user's environment
 }
 
-variable "subnets_to_privatelink" {
-  description = "A map of Zone IDs to Subnet IDs for the AWS PrivateLink endpoint network interfaces. Example: { \"use1-az1\" = \"subnet-abcdef0123456789a\", \"use1-az2\" = \"subnet-bcdefg0123456789b\" }"
-  type        = map(string)
-  // No default, as this is specific to the user's environment
+variable "availability_zone_names" {
+  description = "A list of Availability Zone names where subnets for the PrivateLink endpoint will be created (e.g., [\"us-east-1a\", \"us-east-1b\"])."
+  type        = list(string)
+  // No default, user must specify.
+}
+
+variable "subnet_cidr_blocks" {
+  description = "A list of CIDR blocks for the new subnets, corresponding to the order of availability_zone_names. Must be within the VPC's CIDR range and non-overlapping. (e.g., [\"10.0.1.0/24\", \"10.0.2.0/24\"])"
+  type        = list(string)
+  // No default, user must specify.
 }
 
 variable "cluster_name" {

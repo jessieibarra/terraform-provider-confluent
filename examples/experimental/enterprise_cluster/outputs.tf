@@ -28,5 +28,10 @@ output "private_link_aws_vpc_endpoint_id" {
   value       = module.aws_vpc_endpoint_service.vpc_endpoint_id
 }
 
+output "created_subnet_ids" {
+  description = "IDs of the AWS subnets created by the module for PrivateLink."
+  value       = module.aws_vpc_endpoint_service.created_subnet_ids
+}
+
 // Placeholder for other outputs
 // This is an experimental module.

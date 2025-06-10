@@ -43,7 +43,7 @@ resource "confluent_kafka_cluster" "enterprise_test" {
   cloud        = "AWS"
   region       = var.aws_region
   environment {
-    id = local.effective_environment_id // UPDATED
+    id = local.effective_environment_id
   }
   enterprise {
     cku = 1 // Assuming 1 CKU is the smallest. This might need adjustment.
@@ -53,11 +53,11 @@ resource "confluent_kafka_cluster" "enterprise_test" {
 }
 
 resource "confluent_private_link_attachment" "experimental_pla" {
-  display_name = "${var.cluster_name}-pla" // Escaped for heredoc
+  display_name = "${var.cluster_name}-pla"
   cloud        = "AWS"
   region       = var.aws_region
   environment {
-    id = local.effective_environment_id // UPDATED
+    id = local.effective_environment_id
   }
   // AWS specific configurations will be implicitly handled by the provider
   // based on the 'cloud = "AWS"' attribute.
@@ -66,19 +66,20 @@ resource "confluent_private_link_attachment" "experimental_pla" {
 module "aws_vpc_endpoint_service" {
   source = "./aws-privatelink-endpoint"
 
-  vpc_id                   = var.vpc_id
-  aws_region               = var.aws_region
-  subnets_to_privatelink   = var.subnets_to_privatelink
-  privatelink_service_name = confluent_private_link_attachment.experimental_pla.aws[0].vpc_endpoint_service_name
-  dns_domain               = confluent_private_link_attachment.experimental_pla.dns_domain
+  vpc_id                      = var.vpc_id
+  aws_region                  = var.aws_region
+  availability_zone_names     = var.availability_zone_names // UPDATED
+  subnet_cidr_blocks          = var.subnet_cidr_blocks      // UPDATED
+  privatelink_service_name    = confluent_private_link_attachment.experimental_pla.aws[0].vpc_endpoint_service_name
+  dns_domain                  = confluent_private_link_attachment.experimental_pla.dns_domain
 
   depends_on = [confluent_private_link_attachment.experimental_pla]
 }
 
 resource "confluent_private_link_attachment_connection" "experimental_plac" {
-  display_name = "${var.cluster_name}-plac" // Escaped for heredoc
+  display_name = "${var.cluster_name}-plac"
   environment {
-    id = local.effective_environment_id // UPDATED
+    id = local.effective_environment_id
   }
   private_link_attachment {
     id = confluent_private_link_attachment.experimental_pla.id

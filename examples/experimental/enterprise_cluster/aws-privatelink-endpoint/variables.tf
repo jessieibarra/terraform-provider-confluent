@@ -13,9 +13,14 @@ variable "dns_domain" {
   type        = string
 }
 
-variable "subnets_to_privatelink" {
-  description = "A map of Zone IDs to Subnet IDs (e.g.: {\"use1-az1\" = \"subnet-abcdef0123456789a\", ...})."
-  type        = map(string)
+variable "availability_zone_names" {
+  description = "A list of Availability Zone names where subnets for the PrivateLink endpoint will be created."
+  type        = list(string)
+}
+
+variable "subnet_cidr_blocks" {
+  description = "A list of CIDR blocks for the new subnets, corresponding to the order of availability_zone_names."
+  type        = list(string)
 }
 
 variable "aws_region" {
